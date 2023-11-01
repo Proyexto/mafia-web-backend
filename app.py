@@ -1,6 +1,7 @@
 import flask
-from flask import request, json, jsonify
-from flask_mysqldb import MySQL
+from flask import Flask, request, json, jsonify
+import random, string
+#from flask_mysqldb import MySQL
 
 
 app = flask.Flask(__name__)
@@ -10,16 +11,21 @@ app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'mafiaweb'
  
-mysql = MySQL(app)
-
-from flask import Flask,render_template, request
-from flask_mysqldb import MySQL
+#mysql = MySQL(app)
  
 app = Flask(__name__)
  
+ #Generar un codigo alphanumerico de 6 caracteres para asi tener la ID de las salas
+@app.route("/code/<int:longitud>")
+def generar_codigo_alphanumerico(longitud):
+    caracteres = string.ascii_letters + string.digits
+    codigo = ''.join(random.choice(caracteres) for _ in range(longitud))
+    return jsonify(codigo), 200
+
+ 
 @app.route("/users/<user_id>")
-def get_user(user_id):
-    user= {"id_user": user_id, "email": "test", "username": "pass", "id_img": "1"}
+def get_user(user_id): #devolver dato de una base de datos
+    user= {"id_user": user_id, "email": "test", "username": "test", "pass": "codigo", "id_img": "1"}
     
     return jsonify(user), 200
 
