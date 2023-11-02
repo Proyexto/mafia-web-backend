@@ -1,6 +1,8 @@
 import flask
 from flask import Flask, request, json, jsonify
 import random, string
+import mysql.connector
+
 #from flask_mysqldb import MySQL
 
 
@@ -10,10 +12,22 @@ app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'mafiaweb'
- 
+
+conexion = mysql.connector.connect(
+    host=app.config['MYSQL_HOST'],
+    user=app.config['MYSQL_USER'],
+    password=app.config['MYSQL_PASSWORD'],
+    database=app.config['MYSQL_DB']
+)
 #mysql = MySQL(app)
- 
+
 app = Flask(__name__)
+ 
+# Creo un objewr to cursor para ejecutar consultas
+cursor = conexion.cursor()
+ 
+# consulta = "aca va la consulta"
+# cursor.execute(consulta)
  
  #Generar un codigo alphanumerico de 6 caracteres para asi tener la ID de las salas
 @app.route("/code/<int:longitud>")
@@ -24,8 +38,10 @@ def generar_codigo_alphanumerico(longitud):
 
  
 @app.route("/users/<user_id>")
-def get_user(user_id): #devolver dato de una base de datos
+def get_user(self, user_id): #devolver dato de una base de datos
     user= {"id_user": user_id, "email": "test", "username": "test", "pass": "codigo", "id_img": "1"}
+    #consulta = "SELECT * FROM users WHERE id_user = %s", (user_id)" ARREGLAR
+    cursor.execute(consulta)
     
     return jsonify(user), 200
 
