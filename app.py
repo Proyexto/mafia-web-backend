@@ -2,8 +2,7 @@ import flask
 from flask import Flask, request, json, jsonify
 import random, string
 import mysql.connector
-
-#from flask_mysqldb import MySQL
+from flask_mysqldb import MySQL
 
 
 app = flask.Flask(__name__)
@@ -45,11 +44,29 @@ def get_user(self, user_id): #devolver dato de una base de datos
     
     return jsonify(user), 200
 
-@app.route("/users/add", methods=['POST']) #usar postman para probar
+@app.route("/users/add", methods=['POST'])
 def add_user():
     data = request.get_json()
-    data["status"] = "user created"
-    return jsonify(data), 201
+    
+    if "email" in data and "username" in data and "password" in data and "id_img" in data:
+        email = data["email"]
+        username = data["username"]
+        password = data["password"]
+        id_img = data["id_img"]
+        
+        consulta = "INSERT INTO users (email, username, password, id_img) VALUES (%s, %s, %s, %s)"
+        values = (email, username, password, id_img)
+        
+        try:
+            cursor.execute(consulta, values)
+            conexion.commit() 
+            data["status"] = "user created"
+            return jsonify(data), 201
+        except Exception as e:
+            conexion.rollback()
+            return jsonify({"error": "Error al agregar usuario a la base de datos"}), 500
+    else:
+        return jsonify({"error": "Faltan campos obligatorios en los datos de usuario"}), 400
 '''
 Abre tu solicitud en Postman.
 
