@@ -76,9 +76,24 @@ Asegúrate de que tienes un encabezado llamado "Content-Type".
 
 En el valor de "Content-Type", cambia "text/plain" a "application/json".
 '''
-@app.route("/users/delete")
+@app.route("/users/delete", methods=["POST"])
 def delete_user():
-    return 'a'
+    data = request.get_json()
     
+    if "id_user" in data:
+        id_user = data["id_user"]
+        
+        consulta = "DELETE FROM users WHERE id_user = %s"
+        values = (id_user,)
+        
+        try:
+            cursor.execute(consulta, values)
+            conexion.commit() 
+            data["status"] = "user deleted"
+            return jsonify(data), 201
+        except Exception as e:
+            conexion.rollback()
+            return jsonify({"error": "Error al eliminar usuario a la base de datos"}), 500
+
 if __name__ == '__main__':
     app.run(debug=True)
