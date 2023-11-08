@@ -3,7 +3,9 @@ from flask import Flask, request, json, jsonify
 import random, string
 import mysql.connector
 from flask_mysqldb import MySQL
+#from dotenv import load_dotenv
 
+#load_dotenv()
 
 app = flask.Flask(__name__)
 
@@ -40,7 +42,7 @@ def generar_codigo_alphanumerico(longitud):
 def get_user(self, user_id): #devolver dato de una base de datos
     user= {"id_user": user_id, "email": "test", "username": "test", "pass": "codigo", "id_img": "1"}
     #consulta = "SELECT * FROM users WHERE id_user = %s", (user_id)" ARREGLAR
-    cursor.execute(consulta)
+    #cursor.execute(consulta)
     
     return jsonify(user), 200
 
@@ -83,7 +85,7 @@ def delete_user():
     if "id_user" in data:
         id_user = data["id_user"]
         
-        consulta = "DELETE FROM users WHERE id_user = %s"
+        consulta = "UPDATE users SET users.del_at = CURRENT_DATE() WHERE users.username = %s"
         values = (id_user,)
         
         try:
@@ -94,6 +96,34 @@ def delete_user():
         except Exception as e:
             conexion.rollback()
             return jsonify({"error": "Error al eliminar usuario a la base de datos"}), 500
+    else:
+        return jsonify({"error": "Faltan campos obligatorios en los datos de usuario"}), 400
+
+@app.route("/users/modify", methods=["POST"])
+def modify_user():
+    data = request.get_json()
+    
+    if "email" in data and "username" in data and "password" in data and "id_img" in data and "id_user" in data:
+        email = data["email"]
+        username = data["username"]
+        password = data["password"]
+        id_img = data["id_img"]
+        id_user = data["id_user"]
+        
+        consulta = "UPDATE users SET email = %s, username= %s, password = %s, id_img = %s WHERE id_user = %s"
+        values = (email, username, password, id_img, id_user)
+        
+        try:
+            cursor.execute(consulta, values)
+            conexion.commit() 
+            data["status"] = "user modify"
+            return jsonify(data), 201
+        except Exception as e:
+            conexion.rollback()
+            return jsonify({"error": "Error al modificar usuario a la base de datos"}), 500
+    else:
+        return jsonify({"error": "Faltan campos obligatorios en los datos de usuario"}), 400
+
 
 if __name__ == '__main__':
     app.run(debug=True)
