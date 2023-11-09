@@ -3,7 +3,10 @@
 ## Herramientas:
 - lenguaje: Python
 - Framework: Flask
+    -Blueprint
 - IDE: Visual Studio Code
+-Database: MySQL
+
 Nuestra solución está construida utilizando Python y el marco de desarrollo Flask para la capa de aplicación. Además, utilizamos una base de datos MySQL para almacenar y gestionar la información de usuario de manera segura.
 
 ## Objetivo:
@@ -16,15 +19,17 @@ Este documento proporciona una visión general de nuestro proyecto, que se centr
 La arquitectura de nuestra aplicación se basa en el modelo cliente-servidor. El frontend se comunica con la API a través de solicitudes HTTP, y la API procesa estas solicitudes, realiza las operaciones necesarias en la base de datos MySQL y responde con los datos correspondientes.
 
 ## Pre-requisitos:
- ```
- pip install mysql.connector
 ```
- ```
- pip install flask-mysqldb
+    pip install mysql.connector
 ```
-
+```
+    pip install flask-mysqldb
+```
+```
+    python -m pip install python-dotenv
+```
 ## Iniciar APP:
 
 ```
-uvicorn main:app --reload
+
 ```
