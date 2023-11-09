@@ -2,6 +2,8 @@ import flask
 from flask import Flask, request, json, jsonify
 import random, string
 import mysql.connector
+from enum import Enum
+
 
 #from flask_mysqldb import MySQL
 
@@ -38,13 +40,41 @@ def generar_codigo_alphanumerico(longitud):
 
  
 @app.route("/users/<user_id>")
-def get_user(self, user_id): #devolver dato de una base de datos
-    user= {"id_user": user_id, "email": "test", "username": "test", "pass": "codigo", "id_img": "1"}
+def get_user( user_id): #devolver dato de una base de datos
+    # user= {"id_user": user_id, "email": "test", "username": "test", "pass": "codigo", "id_img": "1"}
     #consulta = "SELECT * FROM users WHERE id_user = %s", (user_id)" ARREGLAR
-    cursor.execute(consulta)
-    
+    # cursor.execute(consulta)    
+
+        # Ejecutar la consulta SQL para obtener los datos del usuario
+        cursor.execute("SELECT id_user, email, username, pass, id_img FROM users WHERE id_user = %s", (user_id, ))
+        user_data = cursor.fetchone()
+
+        if user_data:
+            return user_data
+        else:
+            return None
+
     return jsonify(user), 200
 
+class Status(Enum):
+    abierto = 1
+    enPartida = 2
+
+
+# Ruta para obtener datos de un usuario
+@app.route('/get_user/<int:user_id>', methods=['GET'])
+def get_user_route(user_id):
+    user_data = get_user(user_id)
+    if user_data:
+        return jsonify(user_data)
+    else:
+        return jsonify({"message": "Usuario no encontrado"}), 404
+
+if __name__ == '__main__':
+    app.run(debug=True)
+    
+    
+    
 @app.route("/users/add", methods=['POST']) #usar postman para probar
 def add_user():
     data = request.get_json()
