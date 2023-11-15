@@ -46,29 +46,18 @@ def get_user( user_id): #devolver dato de una base de datos
     # cursor.execute(consulta)    
 
         # Ejecutar la consulta SQL para obtener los datos del usuario
-        cursor.execute("SELECT id_user, email, username, pass, id_img FROM users WHERE id_user = %s", (user_id, ))
+        cursor.execute("SELECT id_user, email, username, pass, id_img FROM users WHERE id_user = %s", (user_id, ))        
         user_data = cursor.fetchone()
-
+        
         if user_data:
-            return user_data
+            return jsonify(user_data), 200
         else:
-            return None
-
-    return jsonify(user), 200
+            return jsonify({"message": "Usuario no encontrado"}), 404
 
 class Status(Enum):
     abierto = 1
     enPartida = 2
 
-
-# Ruta para obtener datos de un usuario
-@app.route('/get_user/<int:user_id>', methods=['GET'])
-def get_user_route(user_id):
-    user_data = get_user(user_id)
-    if user_data:
-        return jsonify(user_data)
-    else:
-        return jsonify({"message": "Usuario no encontrado"}), 404
 
 if __name__ == '__main__':
     app.run(debug=True)
@@ -80,6 +69,7 @@ def add_user():
     data = request.get_json()
     data["status"] = "user created"
     return jsonify(data), 201
+
 '''
 Abre tu solicitud en Postman.
 
