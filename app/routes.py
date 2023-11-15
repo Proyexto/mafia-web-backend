@@ -2,7 +2,8 @@
 from flask import request, jsonify, Blueprint
 import random, string
 from flask_mysqldb import MySQL
-import connection as conn 
+import connection as conn
+from enum import Enum
 '''
 Abre tu solicitud en Postman.
 Ve a la sección "Headers" en la solicitud.
@@ -120,3 +121,17 @@ def generate_room():
     except Exception as e:
         conn.conexion.rollback()
         return jsonify({"error": f"Error al generar sala: {str(e)}"}), 500
+
+@api_blueprint.route("/users/<user_id>")
+def get_user( user_id):
+        conn.cursor.execute("SELECT id_user, email, username, pass, id_img FROM users WHERE id_user = %s", (user_id, ))        
+        user_data = conn.cursor.fetchone()
+        
+        if user_data:
+            return jsonify(user_data), 200
+        else:
+            return jsonify({"message": "Usuario no encontrado"}), 404
+
+class Status(Enum):
+    abierto = 1
+    enPartida = 2
