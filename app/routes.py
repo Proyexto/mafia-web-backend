@@ -11,13 +11,6 @@ En el valor de "Content-Type", cambia "text/plain" a "application/json".
 '''
 api_blueprint = Blueprint('api', __name__)
 
-#Comando para generar numero alphanumerico
-@api_blueprint.route('/code/<int:longitud>')
-def generar_codigo_alphanumerico(longitud):
-    caracteres = string.ascii_letters + string.digits
-    codigo = ''.join(random.choice(caracteres) for _ in range(longitud))
-    return jsonify({"codigo": codigo}), 200
-
 #Comando para añadir usuario
 @api_blueprint.route('/users/add',  methods=['POST'])
 def add_user():
@@ -90,3 +83,40 @@ def modify_user():
             return jsonify({"error": "Error al modificar usuario a la base de datos"}), 500
     else:
         return jsonify({"error": "Faltan campos obligatorios en los datos de usuario"}), 400
+
+@api_blueprint.route('/token/delete/<int:id>', methods=['DELETE'])
+def token_delete(id):
+    consulta = "DELETE FROM room WHERE id = %s"
+
+    try:
+        conn.cursor.execute(consulta, (id,))
+        conn.conexion.commit()
+        return jsonify({"room": "deleted"}), 201
+    except Exception as e:
+        conn.conexion.rollback()
+        return jsonify({"error": "Error al eliminar sala"}), 500
+    
+    
+#Comando para generar numero alphanumerico
+@api_blueprint.route('/code')
+def generar_codigo_alphanumerico():
+    caracteres = string.ascii_letters + string.digits
+    codigo = ''.join(random.choice(caracteres) for _ in range(6))
+    return jsonify({"codigo": codigo}), 200
+
+    
+    
+@api_blueprint.route('/room/generate', methods=['GET'])
+def generate_room():
+    codigo_alphanumerico = generar_codigo_alphanumerico()
+    token = codigo_alphanumerico.json['codigo']
+    values = (token, 3, 'abierto')
+    consulta = "INSERT INTO room (id, cant_us, status) VALUES (%s, %s, %s)"
+    
+    try:
+        conn.cursor.execute(consulta, values)
+        conn.conexion.commit()
+        return jsonify({"room": "added"}), 201
+    except Exception as e:
+        conn.conexion.rollback()
+        return jsonify({"error": f"Error al generar sala: {str(e)}"}), 500
